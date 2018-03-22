@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:aop="http://www.springframework.org/schema/aop"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="
+	   	http://www.springframework.org/schema/beans
+	   	http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop.xsd
+">
+
+	<context:property-placeholder location="classpath:/configurations.properties" file-encoding="UTF-8"/>
+	<context:component-scan base-package="com.oreo"/>
+	<aop:aspectj-autoproxy/>
+
+	<bean id="file" name="file" class="java.io.File">
+		<constructor-arg name="pathname" value="${filesPath}"/>
+	</bean>
+
+	<bean id="blockingQueue" name="blockingQueue" class="java.util.concurrent.ArrayBlockingQueue">
+		<constructor-arg name="capacity" type="int" value="${blockingQueueSize}"/>
+	</bean>
+
+	<bean id="atomicInteger" name="atomicInteger" class="java.util.concurrent.atomic.AtomicInteger">
+		<constructor-arg name="initialValue" type="int" value="0"/>
+	</bean>
+
+	<bean id="threadPoolExecutor" name="threadPoolExecutor" class="java.util.concurrent.ThreadPoolExecutor">
+		<constructor-arg name="corePoolSize" type="int" value="${coreThreadCount}"/>
+		<constructor-arg name="maximumPoolSize" type="int" value="${maxThreadCount}"/>
+		<constructor-arg name="keepAliveTime" type="long" value="${keepAliveTime}"/>
+		<constructor-arg name="unit" value="SECONDS"/>
+		<constructor-arg name="workQueue" ref="blockingQueue"/>
+		<constructor-arg name="handler" ref="pushAgainPolicy"/>
+		<property name="threadFactory" ref="mavenInstallThreadFactory"/>
+	</bean>
+
+</beans>
